@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 public class Document   {
         @JsonProperty("id")
-        private Long id;
+        private String id;
 
         @JsonProperty("documentType")
         private String documentType;

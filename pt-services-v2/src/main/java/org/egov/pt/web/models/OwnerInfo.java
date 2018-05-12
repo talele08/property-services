@@ -30,7 +30,7 @@ import lombok.Setter;
 @Builder
 public class OwnerInfo   {
         @JsonProperty("id")
-        private Long id;
+        private String id;
 
         @JsonProperty("userName")
         private String userName;

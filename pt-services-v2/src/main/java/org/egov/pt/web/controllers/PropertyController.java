@@ -29,7 +29,6 @@ private PropertyService propertyService;
 		
 		PropertyResponse response = null;
 		response = propertyService.createProperty(propertyRequest);
-		propertyService.enrichCreateRequest(propertyRequest);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 

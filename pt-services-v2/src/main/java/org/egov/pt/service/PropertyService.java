@@ -29,13 +29,14 @@ public class PropertyService {
     @Autowired
     PropertyUtil propertyuutil;
 
-    public PropertyResponse createProperty(PropertyRequest properties)
+    public PropertyResponse createProperty(PropertyRequest request)
     {
+        enrichCreateRequest(request);
+        System.out.println("property object: "+request);
 
-
-        PropertyProducer.push(mainConfiguration.getSavePropertyTopic(),properties);
-        return PropertyResponse.builder().properties(properties.getProperties())
-                .responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(properties.getRequestInfo(), true))
+        PropertyProducer.push(mainConfiguration.getSavePropertyTopic(),request);
+        return PropertyResponse.builder().properties(request.getProperties())
+                .responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
                 .build();
 
     }
