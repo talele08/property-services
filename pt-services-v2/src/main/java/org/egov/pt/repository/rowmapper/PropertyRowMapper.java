@@ -64,6 +64,16 @@ public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
                              .additionalDetails(rs.getString("additionaldetails"))
                              .build();
 
+                     Property property = Property.builder().id(rs.getString("id"))
+                             .tenantId(rs.getString("tenantId")).acknowldgementNumber(rs.getString("acknowledgementnumber"))
+                             .status(Property.StatusEnum.valueOf(rs.getString("status"))).financialYear(rs.getString("financialyear"))
+                             .propertyType(rs.getString("propertytype")).oldAssessmentNumber(rs.getString("oldassessmentnumber"))
+                             .assessmentDate(rs.getLong("assessmentdate"))
+                             .creationReason(Property.CreationReasonEnum.fromValue(rs.getString("creationreason")))
+                             .occupancyDate(rs.getLong("occupancydate")).address(address).propertyDetail(propertDetail)
+                             .auditDetails(auditDetails).build();
+
+                     propertyMap.put(propertId,property);
                  }
 
                  List<OwnerInfo> ownerInfos = currentProperty.getOwners();
@@ -106,7 +116,18 @@ public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
                      units.add(unit);
 
 
-               List<List<UnitUsage>> usage  =  new  new ArrayList<ArrayList<UnitUsage>>();
+               List<List<UnitUsage>> usage  =    new ArrayList<List<UnitUsage>>();
+
+               for(Unit u:units){
+                   usage.add(u.getUsage());
+               }
+
+               UnitUsage unitUsage=UnitUsage.builder().usage(rs.getString("usage"))
+                       .fromDate(rs.getLong("fromdate")).toDate(rs.getLong("todate"))
+                       .build();
+
+               if(!usage.contains(unitUsage))
+                   usage.add(0).add(unitUsage);
 
 
              }
