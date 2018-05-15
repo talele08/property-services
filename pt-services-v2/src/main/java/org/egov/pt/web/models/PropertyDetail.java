@@ -1,7 +1,7 @@
 package org.egov.pt.web.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class PropertyDetail   {
         @JsonProperty("id")
         private String id;
@@ -80,11 +82,11 @@ public class PropertyDetail   {
 
         @JsonProperty("units")
         @Valid
-        private List<Unit> units;
+        private Set<Unit> units;
 
         @JsonProperty("documents")
         @Valid
-        private List<Document> documents;
+        private Set<Document> documents;
 
         @JsonProperty("additionalDetails")
         private String additionalDetails;
@@ -132,7 +134,7 @@ public class PropertyDetail   {
 
         public PropertyDetail addUnitsItem(Unit unitsItem) {
             if (this.units == null) {
-            this.units = new ArrayList<>();
+            this.units = new HashSet<>();
             }
         this.units.add(unitsItem);
         return this;
@@ -140,7 +142,7 @@ public class PropertyDetail   {
 
         public PropertyDetail addDocumentsItem(Document documentsItem) {
             if (this.documents == null) {
-            this.documents = new ArrayList<>();
+            this.documents = new HashSet<>();
             }
         this.documents.add(documentsItem);
         return this;

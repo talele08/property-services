@@ -7,7 +7,6 @@ CREATE TABLE eg_pt_property_v2(
   status character varying(64),
   financialYear character varying(64),
   propertyType character varying(64),
-  addressid character varying(64),
   oldAssessmentNumber character varying(256),
   assessmentDate bigint,
   creationReason character varying(256),
@@ -15,7 +14,7 @@ CREATE TABLE eg_pt_property_v2(
   createdby character varying(64),
   createdtime bigint,
   lastmodifiedby character varying(64),
-  lastmodifiedtime character varying(64),
+  lastmodifiedtime bigint,
 
   CONSTRAINT pk_eg_pt_property_v2 PRIMARY KEY (id,tenantid),
   CONSTRAINT uk_eg_pt_property_v2 UNIQUE (id)
@@ -37,6 +36,7 @@ CREATE TABLE eg_pt_owner_v2(
 CREATE TABLE eg_pt_address_v2 (
 
   id character varying(64),
+  property character varying(64),
   latitude numeric(9,6),
   longitude numeric(10,7),
   addressid character varying(64),
@@ -56,7 +56,8 @@ CREATE TABLE eg_pt_address_v2 (
   lastmodifiedby character varying(64),
   lastmodifiedtime bigint,
 
-  CONSTRAINT pk_eg_pt_address_v2 PRIMARY KEY (id)
+  CONSTRAINT pk_eg_pt_address_v2 PRIMARY KEY (id,property),
+  CONSTRAINT fk_eg_pt_address_v2 FOREIGN KEY (property) REFERENCES eg_pt_property_v2 (id)
 );
 
 
@@ -76,7 +77,9 @@ CREATE TABLE eg_pt_propertydetail_v2 (
   lastmodifiedby character varying(64),
   lastmodifiedtime bigint,
 
-  CONSTRAINT pk_eg_pt_propertydetail_v2 PRIMARY KEY (id),
+  CONSTRAINT pk_eg_pt_propertydetail_v2 PRIMARY KEY (id,property),
+  CONSTRAINT uk_eg_pt_propertydetail_1_v2 UNIQUE (property),
+  CONSTRAINT uk_eg_pt_propertydetail_2_v2 UNIQUE (id),
   CONSTRAINT fk_eg_pt_propertydetail_v2 FOREIGN KEY (property) REFERENCES eg_pt_property_v2 (id)
 );
 
@@ -92,7 +95,8 @@ CREATE TABLE eg_pt_document_v2 (
   lastmodifiedby character varying(64),
   lastmodifiedtime bigint,
 
-  CONSTRAINT pk_eg_pt_document_v2 PRIMARY KEY (id),
+  CONSTRAINT pk_eg_pt_document_v2 PRIMARY KEY (id,documenttype),
+  Constraint uk_eg_pt_document_v2 UNIQUE (propertydetail),
   CONSTRAINT fk_eg_pt_document_v2 FOREIGN KEY (propertydetail) REFERENCES eg_pt_propertydetail_v2 (id)
 );
 

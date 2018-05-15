@@ -1,154 +1,109 @@
 package org.egov.pt.repository.rowmapper;
 
 
-
-
-
-
-
-import com.sun.prism.Texture;
-import org.egov.pt.web.models.*;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.util.CollectionUtils;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.security.acl.Owner;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 
-@Slf4j
+import org.egov.pt.web.models.Address;
+import org.egov.pt.web.models.Boundary;
+import org.egov.pt.web.models.Document;
+import org.egov.pt.web.models.OwnerInfo;
+import org.egov.pt.web.models.Property;
+import org.egov.pt.web.models.Property.CreationReasonEnum;
+import org.egov.pt.web.models.Property.StatusEnum;
+import org.egov.pt.web.models.PropertyDetail;
+import org.egov.pt.web.models.PropertyDetail.ChannelEnum;
+import org.egov.pt.web.models.PropertyDetail.SourceEnum;
+import org.egov.pt.web.models.Unit;
+import org.egov.pt.web.models.UnitUsage;
+import org.egov.pt.web.models.UnitUsage.OccupancyTypeEnum;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.stereotype.Component;
+
+@Component
 public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
 
+	@Override
+	public List<Property> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-    @Override
-    public List<Property> extractData(ResultSet rs) throws SQLException, DataAccessException {
+		Map<String, Property> propertyMap = new HashMap<>();
 
-        Map<String, Property> propertyMap = new TreeMap<>();
+		while (rs.next()) {
+			
+			String currentId = rs.getString("propertyid");
+			Property currentProperty = propertyMap.get(currentId);
+			String tenanId = rs.getString("tenantId");
 
-         try{
+			if (null == currentProperty) {
 
-             while(rs.next()){
+				PropertyDetail detail = PropertyDetail.builder().id(rs.getString("propertydetailid"))
+						.additionalDetails(rs.getString("additionalDetails")).buildUpArea(rs.getFloat("buildUpArea"))
+						.channel(ChannelEnum.fromValue(rs.getString("channel"))).landArea(rs.getFloat("landArea"))
+						.noOfFloors(rs.getLong("noOfFloors")).source(SourceEnum.fromValue(rs.getString("source")))
+						.usage(rs.getString("usage")).build();
 
-                 String propertId = rs.getString("id");
+				Boundary locality = Boundary.builder().code(rs.getString("locality")).build();
 
-                 Property currentProperty= propertyMap.get(propertId);
+				/*
+				 * id of the address table is being fetched as address key to avoid confusion
+				 * with addressId field
+				 */
+				Address address = Address.builder().addressId(rs.getString("addressId"))
+						.addressLine1(rs.getString("addressLine1")).addressLine2(rs.getString("addressLine2"))
+						.addressNumber(rs.getString("addressNumber")).buildingName(rs.getString("buildingName"))
+						.city(rs.getString("city")).detail(rs.getString("detail")).id(rs.getString("addresskeyid"))
+						.landmark(rs.getString("landmark")).latitude(rs.getDouble("latitude")).locality(locality)
+						.longitude(rs.getDouble("longitude")).pincode(rs.getString("pincode"))
+						.street(rs.getString("street")).tenantId(tenanId).type(rs.getString("type")).build();
 
-                 if (currentProperty==null) {
+				currentProperty = Property.builder().propertyDetail(detail).address(address)
+						.acknowldgementNumber(rs.getString("acknowldgementNumber"))
+						.assessmentDate(rs.getLong("assessmentDate")).assessmentNumber(rs.getString("assessmentNumber"))
+						.creationReason(CreationReasonEnum.fromValue(rs.getString("creationReason")))
+						.financialYear(rs.getString("financialYear")).id(currentId)
+						.occupancyDate(rs.getLong("occupancyDate"))
+						.oldAssessmentNumber(rs.getString("oldAssessmentNumber"))
+						.propertyType(rs.getString("propertyType")).status(StatusEnum.fromValue(rs.getString("status")))
+						.tenantId(tenanId).build();
 
-                     AuditDetails auditDetails = AuditDetails.builder().createdBy(rs.getString("createdby"))
-                             .createdTime(rs.getLong("createdTime")).lastModifiedBy(rs.getString("lastModifiedBy"))
-                             .lastModifiedTime(rs.getLong("lastModifiedTime")).build();
+				propertyMap.put(currentId, currentProperty);
+			}
 
-                     Address address = Address.builder().id(rs.getString("id"))
-                             .latitude(rs.getDouble("latitude")).longitude(rs.getDouble("longitude"))
-                             .addressNumber(rs.getString("addressNumber")).type(rs.getString("type"))
-                             .addressLine1(rs.getString("addressLine1")).addressLine2(rs.getString("addressLine2"))
-                             .landmark(rs.getString("landmark")).city(rs.getString("city"))
-                             .pincode(rs.getString("pincode")).detail(rs.getString("detail"))
-                             .buildingName(rs.getString("buildingName")).street(rs.getString("street"))
-                             .locality(Boundary.builder().code(rs.getString("locality")).build())
-                             .build();
+			addChildrenToProperty(rs, currentProperty);
+		}
+		return new ArrayList<>(propertyMap.values());
+	}
 
-                     PropertyDetail propertDetail=PropertyDetail.builder()
-                             .id(rs.getString("id"))
-                             .source(PropertyDetail.SourceEnum.fromValue(rs.getString("source")))
-                             .usage(rs.getString("usage")).noOfFloors(rs.getLong("nooffloors"))
-                             .landArea(rs.getFloat("landarea")).buildUpArea(rs.getFloat("builduparea"))
-                             .channel(PropertyDetail.ChannelEnum.fromValue(rs.getString("channel")))
-                             .additionalDetails(rs.getString("additionaldetails"))
-                             .build();
+	private void addChildrenToProperty(ResultSet rs, Property property) throws SQLException {
 
-                     Property property = Property.builder().id(rs.getString("id"))
-                             .tenantId(rs.getString("tenantId")).acknowldgementNumber(rs.getString("acknowledgementnumber"))
-                             .status(Property.StatusEnum.valueOf(rs.getString("status"))).financialYear(rs.getString("financialyear"))
-                             .propertyType(rs.getString("propertytype")).oldAssessmentNumber(rs.getString("oldassessmentnumber"))
-                             .assessmentDate(rs.getLong("assessmentdate"))
-                             .creationReason(Property.CreationReasonEnum.fromValue(rs.getString("creationreason")))
-                             .occupancyDate(rs.getLong("occupancydate")).address(address).propertyDetail(propertDetail)
-                             .auditDetails(auditDetails).build();
+		PropertyDetail detail = property.getPropertyDetail();
+		String tenantId = property.getTenantId();
 
-                     propertyMap.put(propertId,property);
-                 }
+		OwnerInfo owner = OwnerInfo.builder().id(rs.getString("userid")).build();
+		Document document = Document.builder().id(rs.getString("documentid")).documentType(rs.getString("documentType"))
+				.fileStore(rs.getString("fileStore")).build();
+		Unit unit = Unit.builder().id(rs.getString("unitid")).floorNo(rs.getString("floorNo")).tenantId(tenantId)
+				.unitArea(rs.getFloat("unitArea")).unitType(rs.getString("unitType")).build();
+		UnitUsage usage = UnitUsage.builder().fromDate(rs.getLong("fromDate")).id(rs.getString("usageid"))
+				.occupancyType(OccupancyTypeEnum.fromValue(rs.getString("occupancyType"))).toDate(rs.getLong("toDate"))
+				.usage(rs.getString("usage")).build();
 
-                 List<OwnerInfo> ownerInfos = currentProperty.getOwners();
-
-                 if (CollectionUtils.isEmpty(ownerInfos)) {
-                     ownerInfos = new ArrayList<>();
-                     currentProperty.setOwners(ownerInfos);
-                 }
-
-                 OwnerInfo ownerInfo = OwnerInfo.builder().id(rs.getString("userid")).tenantId(rs.getString("tenantId")).build();
-                 if (!ownerInfos.contains(ownerInfo))
-                     ownerInfos.add(ownerInfo);
-
-
-
-                 List<Document> documents=currentProperty.getPropertyDetail().getDocuments();
-
-                 if (CollectionUtils.isEmpty(documents)) {
-                     documents = new ArrayList<>();
-                     currentProperty.getPropertyDetail().setDocuments((documents);
-                 }
-
-                 Document doc = Document.builder().id(rs.getString("documentid")).fileStore(rs.getString("filestore"))
-                         .build();
-                 if (!documents.contains(doc))
-                     documents.add(doc);
-
-
-                 List<Unit> units=currentProperty.getPropertyDetail().getUnits();
-
-                 if(CollectionUtils.isEmpty(units)){
-                     units=new ArrayList<>();
-                     currentProperty.getPropertyDetail().setUnits(units);
-                 }
-
-                 Unit unit=Unit.builder().id(rs.getString("id")).floorNo(rs.getString("floorno"))
-                         .unitType(rs.getString("unittype")).unitArea(rs.getFloat("unitarea"))
-                         .build();
-                 if(!units.contains(unit))
-                     units.add(unit);
-
-
-               List<List<UnitUsage>> usage  =    new ArrayList<List<UnitUsage>>();
-
-               for(Unit u:units){
-                   usage.add(u.getUsage());
-               }
-
-               UnitUsage unitUsage=UnitUsage.builder().usage(rs.getString("usage"))
-                       .fromDate(rs.getLong("fromdate")).toDate(rs.getLong("todate"))
-                       .build();
-
-               if(!usage.contains(unitUsage))
-                   usage.add(0).add(unitUsage);
-
-
-             }
-
-
-
-         }
-         catch (Exception e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
-
-
-
-
-
-        return new ArrayList<>(propertyMap.values());
-
-    }
-
-
-
-
-    }
+		/*
+		 * add item methods of models are being used to avoid the null checks
+		 */
+		property.addOwnersItem(owner);
+		detail.addDocumentsItem(document);
+		detail.addUnitsItem(unit);
+		Set<Unit> units = detail.getUnits();
+		units.forEach(unitItem -> {
+			if (unit.getId() == unitItem.getId())
+				unitItem.addUsageItem(usage);
+		});
+	}
+}

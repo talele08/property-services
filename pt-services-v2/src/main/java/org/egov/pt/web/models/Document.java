@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * This object holds list of documents attached during the transaciton for a property
@@ -18,11 +18,11 @@ import lombok.Setter;
 @Validated
 @javax.annotation.Generated(value = "org.egov.codegen.SpringBootCodegen", date = "2018-05-11T14:12:44.497+05:30")
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude={"documentType"})
 public class Document   {
         @JsonProperty("id")
         private String id;
@@ -32,7 +32,5 @@ public class Document   {
 
         @JsonProperty("fileStore")
         private String fileStore;
-
-
 }
 

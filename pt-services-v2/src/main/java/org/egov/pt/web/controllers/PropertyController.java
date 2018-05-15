@@ -3,6 +3,7 @@ package org.egov.pt.web.controllers;
 import javax.validation.Valid;
 
 import org.egov.pt.service.PropertyService;
+import org.egov.pt.web.models.PropertyCriteria;
 import org.egov.pt.web.models.PropertyRequest;
 import org.egov.pt.web.models.PropertyResponse;
 import org.egov.pt.web.models.RequestInfoWrapper;
@@ -24,6 +25,8 @@ public class PropertyController {
 private PropertyService propertyService;
 
 
+
+
 	@RequestMapping(value = "/_create", method = RequestMethod.POST)
 	public ResponseEntity<PropertyResponse> create(@Valid @RequestBody PropertyRequest propertyRequest) {
 		
@@ -36,14 +39,18 @@ private PropertyService propertyService;
 	public ResponseEntity<PropertyResponse> update(@Valid @RequestBody PropertyRequest propertyRequest) {
 		
 		PropertyResponse response = null;
+		response=propertyService.updateProperty(propertyRequest);
 		return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
 	}
 
 	@RequestMapping(value = "/_search", method = RequestMethod.POST)
 	public ResponseEntity<PropertyResponse> search(@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
-			@Valid @ModelAttribute String s) {
+			@Valid @ModelAttribute  PropertyCriteria propertyCriteria) {
 		
 		PropertyResponse response = null;
+
+		response=propertyService.searchProperty(propertyCriteria);
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

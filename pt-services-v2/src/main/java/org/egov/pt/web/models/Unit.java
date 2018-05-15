@@ -1,7 +1,7 @@
 package org.egov.pt.web.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude={"usage"})
 public class Unit   {
         @JsonProperty("id")
         private String id;
@@ -44,12 +46,12 @@ public class Unit   {
 
         @JsonProperty("usage")
         @Valid
-        private List<UnitUsage> usage;
+        private Set<UnitUsage> usage;
 
 
         public Unit addUsageItem(UnitUsage usageItem) {
             if (this.usage == null) {
-            this.usage = new ArrayList<>();
+            this.usage = new HashSet<>();
             }
         this.usage.add(usageItem);
         return this;

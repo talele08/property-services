@@ -1,16 +1,23 @@
 package org.egov.pt.web.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.Valid;
 
-import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Property
@@ -23,124 +30,124 @@ import com.fasterxml.jackson.annotation.JsonValue;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Property   {
-        @JsonProperty("id")
-        private String id;
+@EqualsAndHashCode(of= {"id","tenantId"})
+public class Property {
 
-        @JsonProperty("tenantId")
-        private String tenantId;
+	@JsonProperty("id")
+	private String id;
 
-        @JsonProperty("acknowldgementNumber")
-        private String acknowldgementNumber;
+	@JsonProperty("tenantId")
+	private String tenantId;
 
-        @JsonProperty("assessmentNumber")
-        private String assessmentNumber;
+	@JsonProperty("acknowldgementNumber")
+	private String acknowldgementNumber;
 
+	@JsonProperty("assessmentNumber")
+	private String assessmentNumber;
 
-    @JsonProperty("auditDetails")
-    private AuditDetails auditDetails;
+	@JsonProperty("auditDetails")
+	private AuditDetails auditDetails;
 
-              /**
-   * status of the Property
-   */
-  public enum StatusEnum {
-    ACTIVE("ACTIVE"),
-    
-    INACTIVE("INACTIVE");
+	/**
+	 * status of the Property
+	 */
+	public enum StatusEnum {
+		ACTIVE("ACTIVE"),
 
-    private String value;
+		INACTIVE("INACTIVE");
 
-    StatusEnum(String value) {
-      this.value = value;
-    }
+		private String value;
 
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
+		StatusEnum(String value) {
+			this.value = value;
+		}
 
-    @JsonCreator
-    public static StatusEnum fromValue(String text) {
-      for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
 
-        @JsonProperty("status")
-        private StatusEnum status;
+		@JsonCreator
+		public static StatusEnum fromValue(String text) {
+			for (StatusEnum b : StatusEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
 
-        @JsonProperty("financialYear")
-        private String financialYear;
+	@JsonProperty("status")
+	private StatusEnum status;
 
-        @JsonProperty("propertyType")
-        private String propertyType;
+	@JsonProperty("financialYear")
+	private String financialYear;
 
-        @JsonProperty("owners")
-        @Valid
-        private List<OwnerInfo> owners;
+	@JsonProperty("propertyType")
+	private String propertyType;
 
-        @JsonProperty("address")
-        private Address address;
+	@JsonProperty("owners")
+	@Valid
+	private Set<OwnerInfo> owners;
 
-        @JsonProperty("oldAssessmentNumber")
-        private String oldAssessmentNumber;
+	@JsonProperty("address")
+	private Address address;
 
-        @JsonProperty("assessmentDate")
-        private Long assessmentDate;
+	@JsonProperty("oldAssessmentNumber")
+	private String oldAssessmentNumber;
 
-              /**
-   * New property comes into system either property is newly constructed or existing property got sub divided. Here the reason for creation will be captured.
-   */
-  public enum CreationReasonEnum {
-    NEWPROPERTY("NEWPROPERTY"),
-    
-    SUBDIVISION("SUBDIVISION");
+	@JsonProperty("assessmentDate")
+	private Long assessmentDate;
 
-    private String value;
+	/**
+	 * New property comes into system either property is newly constructed or
+	 * existing property got sub divided. Here the reason for creation will be
+	 * captured.
+	 */
+	public enum CreationReasonEnum {
+		NEWPROPERTY("NEWPROPERTY"),
 
-    CreationReasonEnum(String value) {
-      this.value = value;
-    }
+		SUBDIVISION("SUBDIVISION");
 
-    @Override
-    @JsonValue
-    public String toString() {
-      return String.valueOf(value);
-    }
+		private String value;
 
-    @JsonCreator
-    public static CreationReasonEnum fromValue(String text) {
-      for (CreationReasonEnum b : CreationReasonEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
+		CreationReasonEnum(String value) {
+			this.value = value;
+		}
 
-        @JsonProperty("creationReason")
-        private CreationReasonEnum creationReason;
+		@Override
+		@JsonValue
+		public String toString() {
+			return String.valueOf(value);
+		}
 
-        @JsonProperty("occupancyDate")
-        private Long occupancyDate;
+		@JsonCreator
+		public static CreationReasonEnum fromValue(String text) {
+			for (CreationReasonEnum b : CreationReasonEnum.values()) {
+				if (String.valueOf(b.value).equals(text)) {
+					return b;
+				}
+			}
+			return null;
+		}
+	}
 
-        @JsonProperty("propertyDetail")
-        private PropertyDetail propertyDetail;
+	@JsonProperty("creationReason")
+	private CreationReasonEnum creationReason;
 
+	@JsonProperty("occupancyDate")
+	private Long occupancyDate;
 
-        public Property addOwnersItem(OwnerInfo ownersItem) {
-            if (this.owners == null) {
-            this.owners = new ArrayList<>();
-            }
-        this.owners.add(ownersItem);
-        return this;
-        }
+	@JsonProperty("propertyDetail")
+	private PropertyDetail propertyDetail;
 
+	public Property addOwnersItem(OwnerInfo ownersItem) {
+		if (this.owners == null) {
+			this.owners = new HashSet<>();
+		}
+		this.owners.add(ownersItem);
+		return this;
+	}
 }
-
