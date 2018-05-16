@@ -95,8 +95,7 @@ CREATE TABLE eg_pt_document_v2 (
   lastmodifiedby character varying(64),
   lastmodifiedtime bigint,
 
-  CONSTRAINT pk_eg_pt_document_v2 PRIMARY KEY (id,documenttype),
-  Constraint uk_eg_pt_document_v2 UNIQUE (propertydetail),
+  CONSTRAINT pk_eg_pt_document_v2 PRIMARY KEY (id),
   CONSTRAINT fk_eg_pt_document_v2 FOREIGN KEY (propertydetail) REFERENCES eg_pt_propertydetail_v2 (id)
 );
 
@@ -105,7 +104,7 @@ CREATE TABLE eg_pt_unit_v2 (
 
   id character varying(64),
   propertydetail character varying(64),
-  floorNo	bigint,
+  floorNo	character varying(64),
   unitType character varying(64),
   unitArea numeric,
   createdby character varying(64),

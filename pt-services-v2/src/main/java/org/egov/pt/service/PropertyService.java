@@ -51,6 +51,10 @@ public class PropertyService {
 			property.getAddress().setId(UUID.randomUUID().toString());
 			property.setAuditDetails(auditDetails);
 			property.getPropertyDetail().setId(UUID.randomUUID().toString());
+			Set<OwnerInfo> owners = property.getOwners();
+			owners.forEach(owner -> {
+				owner.setId(UUID.randomUUID().toString());
+			});
 			Set<Unit> units = property.getPropertyDetail().getUnits();
 			units.forEach(unit -> {
 				unit.setId(UUID.randomUUID().toString());
@@ -72,18 +76,18 @@ public class PropertyService {
 
 
 	public PropertyResponse updateProperty(PropertyRequest request) {
-		enrichUpdateRequest(request);
 		PropertyResponse response = propertyExists(request);
         boolean ifPropertyExists=listEqualsIgnoreOrder(response.getProperties(),request.getProperties());
 
         if(ifPropertyExists) {
+			enrichUpdateRequest(request,response);
 			producer.push(config.getUpdatePropertyTopic(), request);
 			return PropertyResponse.builder().properties(request.getProperties())
 					.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
 					.build();
 		}
 		else
-		{
+		{   System.out.println("update failed");
 			return PropertyResponse.builder().properties(request.getProperties())
 					.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), false))
 					.build();
@@ -92,27 +96,61 @@ public class PropertyService {
 	}
 
 
-	public void enrichUpdateRequest(PropertyRequest request) {
+	public void enrichUpdateRequest(PropertyRequest request,PropertyResponse response) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
 		AuditDetails auditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
+        Map<String,Property> idToProperty = new HashMap<>();
+        List<Property> propertiesFromResponse = response.getProperties();
+        propertiesFromResponse.forEach(propertyFromResponse -> {
+			idToProperty.put(propertyFromResponse.getId(),propertyFromResponse);
+		});
 
 		for (Property property : request.getProperties()){
 			property.setAuditDetails(auditDetails);
+			String id = property.getId();
+			Property responseProperty = idToProperty.get(id);
+
+			property.getPropertyDetail().setId(responseProperty.getPropertyDetail().getId());
+			property.getAddress().setId(responseProperty.getAddress().getId());
+
+
 			Set<OwnerInfo> ownerInfos = property.getOwners();
 			Set<Document> documents = property.getPropertyDetail().getDocuments();
+			Set<Unit> units=property.getPropertyDetail().getUnits();
 
-			ownerInfos.forEach(owner -> {
-				if(owner.getId()==null){
-					owner.setId(UUID.randomUUID().toString());
-				}
-			});
+			if(ownerInfos!=null && !ownerInfos.isEmpty()) {
+				ownerInfos.forEach(owner -> {
+					if (owner.getId() == null) {
+						owner.setId(UUID.randomUUID().toString());
+					}
+				});
+			}
 
-			documents.forEach(document ->{
-				if(document.getId()==null){
-					document.setId(UUID.randomUUID().toString());
-				}
-			});
+			if(documents!=null && !documents.isEmpty()){
+		     	documents.forEach(document ->{
+					if(document.getId()==null){
+						document.setId(UUID.randomUUID().toString());
+					}
+				  });
+			 }
+
+			if(units!=null && !units.isEmpty()){
+				units.forEach(unit ->{
+					if(unit.getId()==null){
+						unit.setId(UUID.randomUUID().toString());
+					}
+					Set<UnitUsage> usages = unit.getUsage();
+					if(usages!=null && !usages.isEmpty()){
+						usages.forEach(usage ->{
+							if(usage.getId()==null){
+								usage.setId(UUID.randomUUID().toString());
+							}
+						});
+					}
+				});
+			}
+
 		 }
 	}
 
