@@ -48,9 +48,7 @@ private PropertyService propertyService;
 			@Valid @ModelAttribute  PropertyCriteria propertyCriteria) {
 		
 		PropertyResponse response = null;
-
 		response=propertyService.searchProperty(propertyCriteria);
-
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

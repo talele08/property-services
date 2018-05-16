@@ -1,6 +1,7 @@
 package org.egov.pt.service;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
@@ -12,6 +13,7 @@ import org.egov.pt.util.ResponseInfoFactory;
 import org.egov.pt.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PropertyService {
@@ -161,29 +163,101 @@ public class PropertyService {
 		PropertyResponse response=null;
 		List<Property> properties=request.getProperties();
 		Set<String> ids = new HashSet<>();
+        Set<String> propertyDetailids = new HashSet<>();
+        Set<String> unitids = new HashSet<>();
+        Set<String> usageids = new HashSet<>();
+        Set<String> documentids = new HashSet<>();
+        Set<String> ownerids = new HashSet<>();
+        Set<String> addressids = new HashSet<>();
+
 		PropertyCriteria propertyCriteria = new PropertyCriteria();
 
 		properties.forEach(property -> {
                  ids.add(property.getId());
+                 if(!CollectionUtils.isEmpty(ids)) {
+                     if(property.getPropertyDetail().getId()!=null)
+                      propertyDetailids.add(property.getPropertyDetail().getId());
+                     if(property.getAddress().getId()!=null)
+                      addressids.add(property.getAddress().getId());
+                     if(!CollectionUtils.isEmpty(property.getOwners()))
+                        ownerids.addAll(getOwnerids(property));
+                     if(!CollectionUtils.isEmpty(property.getPropertyDetail().getDocuments()))
+                        documentids.addAll(getDocumentids(property.getPropertyDetail()));
+                     if(!CollectionUtils.isEmpty(property.getPropertyDetail().getUnits())) {
+                        unitids.addAll(getUnitids(property.getPropertyDetail()));
+                      if(usageNotEmpty(property.getPropertyDetail().getUnits()))
+                        usageids.addAll(getUsageids(property.getPropertyDetail()));
+                     }
+                 }
 				}
 		);
 
 		propertyCriteria.setTenantId(properties.get(0).getTenantId());
 		propertyCriteria.setIds(ids);
+		propertyCriteria.setPropertyDetailids(propertyDetailids);
+        propertyCriteria.setAddressids(addressids);
+        propertyCriteria.setOwnerids(ownerids);
+        propertyCriteria.setUnitids(unitids);
+        propertyCriteria.setUsageids(usageids);
+        propertyCriteria.setDocumentids(documentids);
 
 		response = searchProperty(propertyCriteria);
 		return response;
 	}
 
 
+    public Set<String> getOwnerids(Property property){
+        Set<OwnerInfo> owners= property.getOwners();
+        Set<String> ownerIds = new HashSet<>();
+        owners.forEach(owner -> {
+            if(owner.getId()!=null)
+             ownerIds.add(owner.getId());
+        });
+        return ownerIds;
+    }
 
+    public Set<String> getUnitids(PropertyDetail propertyDetail){
+	    Set<Unit> units= propertyDetail.getUnits();
+	    Set<String> unitIds = new HashSet<>();
+	    units.forEach(unit -> {
+	        if(unit.getId()!=null)
+	         unitIds.add(unit.getId());
+        });
+	    return unitIds;
+    }
 
+    public Set<String> getUsageids(PropertyDetail propertyDetail){
+        Set<Unit> units= propertyDetail.getUnits();
+        Set<UnitUsage> usages = new HashSet<>();
+        Set<String> usageids = new HashSet<>();
+        units.forEach(unit -> {
+            usages.addAll(unit.getUsage());
+        });
+        usages.forEach(usage -> {
+            if(usage.getId()!=null)
+             usageids.add(usage.getId());
+        });
+        return usageids;
+    }
 
+    public Set<String> getDocumentids(PropertyDetail propertyDetail){
+        Set<Document> documents= propertyDetail.getDocuments();
+        Set<String> documentIds = new HashSet<>();
+        documents.forEach(document -> {
+            documentIds.add(document.getId());
+        });
+        return documentIds;
+    }
 
+    public boolean usageNotEmpty(Set<Unit> units){
+        Predicate<Unit> p = unit -> !CollectionUtils.isEmpty(unit.getUsage()) ;
+	    return units.stream().anyMatch(p);
+    }
 
 	public static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
 		return new HashSet<>(list1).equals(new HashSet<>(list2));
 	}
+
 
 
 

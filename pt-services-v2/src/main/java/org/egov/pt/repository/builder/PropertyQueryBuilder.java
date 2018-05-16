@@ -44,7 +44,49 @@ public class PropertyQueryBuilder {
 			builder.append("and pt.id IN ("+convertSetToString(ids)+")");
 
 		}
-			
+
+		Set<String> propertyDetailids = criteria.getPropertyDetailids();
+		if(!CollectionUtils.isEmpty(propertyDetailids)) {
+
+			builder.append("and ptdl.id IN ("+convertSetToString(propertyDetailids)+")");
+
+		}
+
+		Set<String> addressids = criteria.getAddressids();
+		if(!CollectionUtils.isEmpty(addressids)) {
+
+			builder.append("and address.id IN ("+convertSetToString(addressids)+")");
+
+		}
+
+		Set<String> ownerids = criteria.getOwnerids();
+		if(!CollectionUtils.isEmpty(ownerids)) {
+
+			builder.append("and owner.userid IN ("+convertSetToString(ownerids)+")");
+
+		}
+
+		Set<String> unitids = criteria.getUnitids();
+		if(!CollectionUtils.isEmpty(unitids)) {
+
+			builder.append("and unit.id IN ("+convertSetToString(unitids)+")");
+
+		}
+
+		Set<String> usageids = criteria.getUsageids();
+		if(!CollectionUtils.isEmpty(usageids)) {
+
+			builder.append("and usage.id IN ("+convertSetToString(usageids)+")");
+
+		}
+
+		Set<String> documentids = criteria.getDocumentids();
+		if(!CollectionUtils.isEmpty(documentids)) {
+
+			builder.append("and doc.id IN ("+convertSetToString(documentids)+")");
+
+		}
+
 		return builder.toString();
 	}
 	

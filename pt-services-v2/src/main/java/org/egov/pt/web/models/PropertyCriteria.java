@@ -16,4 +16,16 @@ public class PropertyCriteria {
 	private String tenantId;
 	
 	private Set<String> ids;
+
+	private Set<String> propertyDetailids;
+
+	private Set<String> addressids;
+
+	private Set<String> unitids;
+
+	private Set<String> usageids;
+
+	private Set<String> documentids;
+
+	private Set<String> ownerids;
 }
