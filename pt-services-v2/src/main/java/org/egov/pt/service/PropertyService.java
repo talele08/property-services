@@ -11,6 +11,7 @@ import org.egov.pt.repository.PropertyRepository;
 import org.egov.pt.util.PropertyUtil;
 import org.egov.pt.util.ResponseInfoFactory;
 import org.egov.pt.web.models.*;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -79,7 +80,18 @@ public class PropertyService {
 
 	public PropertyResponse updateProperty(PropertyRequest request) {
 		PropertyResponse response = propertyExists(request);
-        boolean ifPropertyExists=listEqualsIgnoreOrder(response.getProperties(),request.getProperties());
+		List<String> responseids = new ArrayList<>();
+		List<String> requestids = new ArrayList<>();
+
+		request.getProperties().forEach(property -> {
+			requestids.add(property.getId());
+		});
+
+		response.getProperties().forEach(property -> {
+			responseids.add(property.getId());
+		});
+
+        boolean ifPropertyExists=listEqualsIgnoreOrder(responseids,requestids);
 
         if(ifPropertyExists) {
 			enrichUpdateRequest(request,response);
@@ -89,10 +101,7 @@ public class PropertyService {
 					.build();
 		}
 		else
-		{   System.out.println("update failed");
-			return PropertyResponse.builder().properties(request.getProperties())
-					.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), false))
-					.build();
+		{    throw new CustomException("usr_002","invalid id");  // Change the error code
 
 		}
 	}
@@ -101,15 +110,16 @@ public class PropertyService {
 	public void enrichUpdateRequest(PropertyRequest request,PropertyResponse response) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
-		AuditDetails auditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
-        Map<String,Property> idToProperty = new HashMap<>();
+		AuditDetails AuditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
+
+		Map<String,Property> idToProperty = new HashMap<>();
         List<Property> propertiesFromResponse = response.getProperties();
         propertiesFromResponse.forEach(propertyFromResponse -> {
 			idToProperty.put(propertyFromResponse.getId(),propertyFromResponse);
 		});
 
 		for (Property property : request.getProperties()){
-			property.setAuditDetails(auditDetails);
+			property.setAuditDetails(AuditDetails);
 			String id = property.getId();
 			Property responseProperty = idToProperty.get(id);
 

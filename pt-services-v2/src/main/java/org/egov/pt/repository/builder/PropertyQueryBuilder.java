@@ -55,14 +55,14 @@ public class PropertyQueryBuilder {
 		Set<String> addressids = criteria.getAddressids();
 		if(!CollectionUtils.isEmpty(addressids)) {
 
-			builder.append("and address.id IN ("+convertSetToString(addressids)+")");
+			builder.append("and address.id IN (").append(convertSetToString(addressids)).append(")");
 
 		}
 
 		Set<String> ownerids = criteria.getOwnerids();
 		if(!CollectionUtils.isEmpty(ownerids)) {
 
-			builder.append("and owner.userid IN ("+convertSetToString(ownerids)+")");
+			builder.append("and owner.userid IN (").append(convertSetToString(ownerids)).append(")");
 
 		}
 
