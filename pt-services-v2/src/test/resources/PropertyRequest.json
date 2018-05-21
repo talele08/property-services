@@ -18,7 +18,6 @@
       "propertyType": null,
       "owners": [
         {
-          "id": 0,
           "userName": null,
           "password": null,
           "salutation": null,
@@ -43,7 +42,6 @@
           "accountLocked": true,
           "roles": [
             {
-              "id": 0,
               "name": null,
               "code": null,
               "description": null,
@@ -100,7 +98,6 @@
       "creationReason": "NEWPROPERTY",
       "occupancyDate": 0,
       "propertyDetail": {
-        "id": 0,
         "source": "MUNICIPAL_RECORDS",
         "usage": null,
         "noOfFloors": 0,
@@ -108,7 +105,6 @@
         "buildUpArea": 0,
         "units": [
           {
-            "id": null,
             "tenantId": null,
             "floorNo": null,
             "unitType": null,

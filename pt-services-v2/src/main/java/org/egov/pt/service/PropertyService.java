@@ -34,17 +34,14 @@ public class PropertyService {
 	@Autowired
 	PropertyUtil propertyuutil;
 
-	public PropertyResponse createProperty(PropertyRequest request) {
+	public List<Property> createProperty(PropertyRequest request) {
 		enrichCreateRequest(request);
 
 		producer.push(config.getSavePropertyTopic(), request);
-		return PropertyResponse.builder().properties(request.getProperties())
-				.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
-				.build();
-
+		return request.getProperties();
 	}
 
-	public void enrichCreateRequest(PropertyRequest request) {
+	private void enrichCreateRequest(PropertyRequest request) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
 		AuditDetails auditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), true);
@@ -71,34 +68,24 @@ public class PropertyService {
 		}
 	}
 
-	public PropertyResponse searchProperty(PropertyCriteria criteria) {
+	public List<Property> searchProperty(PropertyCriteria criteria) {
 
 		List<Property> properties = repository.getProperties(criteria);
-		return PropertyResponse.builder().properties(properties).responseInfo(new ResponseInfo()).build();
+		return properties;
 	}
 
 
-	public PropertyResponse updateProperty(PropertyRequest request) {
-		PropertyResponse response = propertyExists(request);
-		List<String> responseids = new ArrayList<>();
-		List<String> requestids = new ArrayList<>();
-
-		request.getProperties().forEach(property -> {
-			requestids.add(property.getId());
-		});
-
-		response.getProperties().forEach(property -> {
-			responseids.add(property.getId());
-		});
-
-        boolean ifPropertyExists=listEqualsIgnoreOrder(responseids,requestids);
+	public List<Property> updateProperty(PropertyRequest request) {
+		List<Property> responseProperties = getResponseProperties(request);
+        boolean ifPropertyExists=PropertyExists(request,responseProperties);
 
         if(ifPropertyExists) {
-			enrichUpdateRequest(request,response);
+			enrichUpdateRequest(request,responseProperties);
 			producer.push(config.getUpdatePropertyTopic(), request);
-			return PropertyResponse.builder().properties(request.getProperties())
+			return request.getProperties();
+			/*return PropertyResponse.builder().properties(request.getProperties())
 					.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
-					.build();
+					.build();*/
 		}
 		else
 		{    throw new CustomException("usr_002","invalid id");  // Change the error code
@@ -107,13 +94,12 @@ public class PropertyService {
 	}
 
 
-	public void enrichUpdateRequest(PropertyRequest request,PropertyResponse response) {
+	private void enrichUpdateRequest(PropertyRequest request,List<Property> propertiesFromResponse) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
 		AuditDetails AuditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
 
 		Map<String,Property> idToProperty = new HashMap<>();
-        List<Property> propertiesFromResponse = response.getProperties();
         propertiesFromResponse.forEach(propertyFromResponse -> {
 			idToProperty.put(propertyFromResponse.getId(),propertyFromResponse);
 		});
@@ -167,10 +153,9 @@ public class PropertyService {
 	}
 
 
-    public PropertyResponse propertyExists(PropertyRequest request) {
+	private List<Property> getResponseProperties(PropertyRequest request) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
-		PropertyResponse response=null;
 		List<Property> properties=request.getProperties();
 		Set<String> ids = new HashSet<>();
         Set<String> propertyDetailids = new HashSet<>();
@@ -211,12 +196,12 @@ public class PropertyService {
         propertyCriteria.setUsageids(usageids);
         propertyCriteria.setDocumentids(documentids);
 
-		response = searchProperty(propertyCriteria);
-		return response;
+		List<Property> responseProperties = searchProperty(propertyCriteria);
+		return responseProperties;
 	}
 
 
-    public Set<String> getOwnerids(Property property){
+	private Set<String> getOwnerids(Property property){
         Set<OwnerInfo> owners= property.getOwners();
         Set<String> ownerIds = new HashSet<>();
         owners.forEach(owner -> {
@@ -226,7 +211,7 @@ public class PropertyService {
         return ownerIds;
     }
 
-    public Set<String> getUnitids(PropertyDetail propertyDetail){
+	private Set<String> getUnitids(PropertyDetail propertyDetail){
 	    Set<Unit> units= propertyDetail.getUnits();
 	    Set<String> unitIds = new HashSet<>();
 	    units.forEach(unit -> {
@@ -236,7 +221,7 @@ public class PropertyService {
 	    return unitIds;
     }
 
-    public Set<String> getUsageids(PropertyDetail propertyDetail){
+	private Set<String> getUsageids(PropertyDetail propertyDetail){
         Set<Unit> units= propertyDetail.getUnits();
         Set<UnitUsage> usages = new HashSet<>();
         Set<String> usageids = new HashSet<>();
@@ -250,7 +235,7 @@ public class PropertyService {
         return usageids;
     }
 
-    public Set<String> getDocumentids(PropertyDetail propertyDetail){
+	private Set<String> getDocumentids(PropertyDetail propertyDetail){
         Set<Document> documents= propertyDetail.getDocuments();
         Set<String> documentIds = new HashSet<>();
         documents.forEach(document -> {
@@ -259,12 +244,27 @@ public class PropertyService {
         return documentIds;
     }
 
-    public boolean usageNotEmpty(Set<Unit> units){
+    private boolean PropertyExists(PropertyRequest request,List<Property> responseProperties){
+
+		List<String> responseids = new ArrayList<>();
+		List<String> requestids = new ArrayList<>();
+
+		request.getProperties().forEach(property -> {
+			requestids.add(property.getId());
+		});
+
+		responseProperties.forEach(property -> {
+			responseids.add(property.getId());
+		});
+		return listEqualsIgnoreOrder(responseids,requestids);
+	}
+
+	private boolean usageNotEmpty(Set<Unit> units){
         Predicate<Unit> p = unit -> !CollectionUtils.isEmpty(unit.getUsage()) ;
 	    return units.stream().anyMatch(p);
     }
 
-	public static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
+	private static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
 		return new HashSet<>(list1).equals(new HashSet<>(list2));
 	}
 
