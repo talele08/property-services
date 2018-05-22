@@ -32,11 +32,10 @@ public class PropertyService {
 	private PropertyRepository repository;
 
 	@Autowired
-	PropertyUtil propertyuutil;
+	PropertyUtil propertyutil;
 
 	public List<Property> createProperty(PropertyRequest request) {
 		enrichCreateRequest(request);
-
 		producer.push(config.getSavePropertyTopic(), request);
 		return request.getProperties();
 	}
@@ -44,7 +43,7 @@ public class PropertyService {
 	private void enrichCreateRequest(PropertyRequest request) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
-		AuditDetails auditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), true);
+		AuditDetails auditDetails = propertyutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), true);
 
 		for (Property property : request.getProperties()) {
 			property.setId(UUID.randomUUID().toString());
@@ -78,14 +77,10 @@ public class PropertyService {
 	public List<Property> updateProperty(PropertyRequest request) {
 		List<Property> responseProperties = getResponseProperties(request);
         boolean ifPropertyExists=PropertyExists(request,responseProperties);
-
         if(ifPropertyExists) {
 			enrichUpdateRequest(request,responseProperties);
 			producer.push(config.getUpdatePropertyTopic(), request);
 			return request.getProperties();
-			/*return PropertyResponse.builder().properties(request.getProperties())
-					.responseInfo(responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true))
-					.build();*/
 		}
 		else
 		{    throw new CustomException("usr_002","invalid id");  // Change the error code
@@ -97,7 +92,7 @@ public class PropertyService {
 	private void enrichUpdateRequest(PropertyRequest request,List<Property> propertiesFromResponse) {
 
 		RequestInfo requestInfo = request.getRequestInfo();
-		AuditDetails AuditDetails = propertyuutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
+		AuditDetails auditDetails = propertyutil.getAuditDetails(requestInfo.getUserInfo().getId().toString(), false);
 
 		Map<String,Property> idToProperty = new HashMap<>();
         propertiesFromResponse.forEach(propertyFromResponse -> {
@@ -105,7 +100,7 @@ public class PropertyService {
 		});
 
 		for (Property property : request.getProperties()){
-			property.setAuditDetails(AuditDetails);
+			property.setAuditDetails(auditDetails);
 			String id = property.getId();
 			Property responseProperty = idToProperty.get(id);
 
@@ -194,7 +189,7 @@ public class PropertyService {
         propertyCriteria.setOwnerids(ownerids);
         propertyCriteria.setUnitids(unitids);
         propertyCriteria.setUsageids(usageids);
-        propertyCriteria.setDocumentids(documentids);
+        propertyCriteria.setDocumentids( documentids);
 
 		List<Property> responseProperties = searchProperty(propertyCriteria);
 		return responseProperties;

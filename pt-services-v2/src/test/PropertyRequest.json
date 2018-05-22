@@ -1,13 +1,15 @@
 {
-  "requestInfo": {
+  "RequestInfo": {
     "apiId": null,
+    "userInfo":{
+      "id":"12"
+    },
     "ver": null,
     "ts": 0,
     "action": null,
     "did": null,
     "key": null,
     "msgId": null,
-    "requesterId": null,
     "authToken": null
   },
   "properties": [
@@ -40,18 +42,6 @@
           "type": null,
           "signature": null,
           "accountLocked": true,
-          "roles": [
-            {
-              "name": null,
-              "code": null,
-              "description": null,
-              "createdBy": 0,
-              "createdDate": null,
-              "lastModifiedBy": 0,
-              "lastModifiedDate": null,
-              "tenantId": null
-            }
-          ],
           "fatherOrHusbandName": null,
           "bloodGroup": null,
           "identificationMark": null,
@@ -83,14 +73,11 @@
         "buildingName": null,
         "street": null,
         "locality": {
-          "code": null,
-          "name": null,
-          "label": null,
-          "latitude": null,
-          "longitude": null,
-          "children": [
-            null
-          ]
+          "code": "ads",
+          "name": "string",
+          "label": "string",
+          "latitude": "string",
+          "longitude": "string"
         }
       },
       "oldAssessmentNumber": null,

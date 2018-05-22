@@ -8,7 +8,7 @@ import java.nio.file.Files;
 public class FileUtils {
     public String getFileContents(String path) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        return new String(Files.readAllBytes(new File(classLoader.getResource(path).getFile()).toPath()));
+        return new String(Files.readAllBytes(new File(path).toPath()));
     }
 
 }
