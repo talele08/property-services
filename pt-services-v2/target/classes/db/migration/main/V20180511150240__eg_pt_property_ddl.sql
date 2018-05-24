@@ -7,6 +7,8 @@ CREATE TABLE eg_pt_property_v2(
   status character varying(64),
   financialYear character varying(64),
   propertyType character varying(64),
+  propertySubType character varying(64),
+  usageCategoryMajor character varying(64),
   oldAssessmentNumber character varying(256),
   assessmentDate bigint,
   creationReason character varying(256),
@@ -107,6 +109,15 @@ CREATE TABLE eg_pt_unit_v2 (
   floorNo	character varying(64),
   unitType character varying(64),
   unitArea numeric,
+  usageCategoryMajor character varying(64),
+  usageCategoryMinor character varying(64),
+  usageCategorySubMinor character varying(64),
+  usageCategoryDetail character varying(64),
+  occupancyType character varying(64),
+  occupancyDate bigint,
+  constructionType character varying(64),
+  constructionSubType character varying(64),
+  arv numeric,
   createdby character varying(64),
   createdtime bigint,
   lastmodifiedby character varying(64),
@@ -116,19 +127,4 @@ CREATE TABLE eg_pt_unit_v2 (
   CONSTRAINT fk_eg_pt_unit_v2 FOREIGN KEY (propertydetail) REFERENCES eg_pt_propertydetail_v2 (id)
 );
 
-CREATE TABLE eg_pt_usage_v2 (
 
-  id character varying(64),
-  unit character varying(64),
-  usage character varying(64),
-  fromDate bigint,
-  toDate bigint,
-  occupancyType character varying(64),
-  createdby character varying(64),
-  createdtime bigint,
-  lastmodifiedby character varying(64),
-  lastmodifiedtime bigint,
-
-  CONSTRAINT pk_eg_pt_usage_v2 PRIMARY KEY (id),
-  CONSTRAINT fk_eg_pt_usage_v2 FOREIGN KEY (unit) REFERENCES eg_pt_unit_v2 (id)
-);

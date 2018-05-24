@@ -75,7 +75,6 @@ public class PropertyServiceTest {
 
         List<Property> properties = propertyServiceMock.createProperty(request);
 
-
         properties.forEach(property -> {
             assertNotNull(property.getId());
             assertNotNull(property.getPropertyDetail().getId());
@@ -85,21 +84,15 @@ public class PropertyServiceTest {
                 assertNotNull((owner.getId()));
             });
 
-
             property.getPropertyDetail().getDocuments().forEach(document -> {
                 assertNotNull((document.getId()));
             });
 
             property.getPropertyDetail().getUnits().forEach(unit -> {
                 assertNotNull(unit.getId());
-                unit.getUsage().forEach(usage -> {
-                    assertNotNull(usage.getId());
-                });
             });
 
         });
-
-
     }
 
     @Test
@@ -131,14 +124,9 @@ public class PropertyServiceTest {
 
             property.getPropertyDetail().getUnits().forEach(unit -> {
                 assertNotNull(unit.getId());
-                unit.getUsage().forEach(usage -> {
-                    assertNotNull(usage.getId());
-                });
             });
 
         });
-
-
     }
 
 
@@ -167,7 +155,6 @@ public class PropertyServiceTest {
         String path = "src/test/PropertyRequest.json";
         try{
             URL url = classLoader.getResource(path);
-            System.out.println("url: "+url);
         String s= new String(Files.readAllBytes(new File(path).toPath()));}
         catch(Exception e){
             e.printStackTrace();

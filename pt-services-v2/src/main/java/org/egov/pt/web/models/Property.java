@@ -88,6 +88,12 @@ public class Property {
 	@JsonProperty("propertyType")
 	private String propertyType;
 
+	@JsonProperty("propertySubType")
+	private String propertySubType;
+
+	@JsonProperty("usageCategoryMajor")
+	private String usageCategoryMajor;
+
 	@JsonProperty("owners")
 	@Valid
 	private Set<OwnerInfo> owners;
@@ -142,6 +148,7 @@ public class Property {
 
 	@JsonProperty("propertyDetail")
 	private PropertyDetail propertyDetail;
+
 
 	public Property addOwnersItem(OwnerInfo ownersItem) {
 		if (this.owners == null) {

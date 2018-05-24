@@ -20,8 +20,6 @@ import org.egov.pt.web.models.PropertyDetail;
 import org.egov.pt.web.models.PropertyDetail.ChannelEnum;
 import org.egov.pt.web.models.PropertyDetail.SourceEnum;
 import org.egov.pt.web.models.Unit;
-import org.egov.pt.web.models.UnitUsage;
-import org.egov.pt.web.models.UnitUsage.OccupancyTypeEnum;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -70,6 +68,7 @@ public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
 						.occupancyDate(rs.getLong("occupancyDate"))
 						.oldAssessmentNumber(rs.getString("oldAssessmentNumber"))
 						.propertyType(rs.getString("propertyType")).status(StatusEnum.fromValue(rs.getString("status")))
+						.propertySubType(rs.getString("propertySubType")).usageCategoryMajor(rs.getString("usageCategoryMajor"))
 						.tenantId(tenanId).build();
 
 				propertyMap.put(currentId, currentProperty);
@@ -89,10 +88,14 @@ public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
 		Document document = Document.builder().id(rs.getString("documentid")).documentType(rs.getString("documentType"))
 				.fileStore(rs.getString("fileStore")).build();
 		Unit unit = Unit.builder().id(rs.getString("unitid")).floorNo(rs.getString("floorNo")).tenantId(tenantId)
-				.unitArea(rs.getFloat("unitArea")).unitType(rs.getString("unitType")).build();
-		UnitUsage usage = UnitUsage.builder().fromDate(rs.getLong("fromDate")).id(rs.getString("usageid"))
-				.occupancyType(OccupancyTypeEnum.fromValue(rs.getString("occupancyType"))).toDate(rs.getLong("toDate"))
-				.usage(rs.getString("usage")).build();
+				.unitArea(rs.getFloat("unitArea")).unitType(rs.getString("unitType")).usageCategoryMajor(rs.getString("usageCategoryMajor"))
+				.usageCategoryMinor(rs.getString("usageCategoryMinor")).usageCategorySubMinor(rs.getString("usageCategorySubMinor"))
+				.usageCategoryDetail(rs.getString("usageCategoryDetail"))
+				.occupancyType(Unit.occupancyTypeEnum.fromValue(rs.getString("occupancyType")))
+				.occupancyDate(rs.getLong("occupancyDate")).constructionType(rs.getString("constructionType"))
+				.constructionSubType(rs.getString("constructionSubType")).arv(rs.getDouble("arv"))
+				.build();
+
 
 		/*
 		 * add item methods of models are being used to avoid the null checks
@@ -100,10 +103,5 @@ public class PropertyRowMapper implements ResultSetExtractor<List<Property>> {
 		property.addOwnersItem(owner);
 		detail.addDocumentsItem(document);
 		detail.addUnitsItem(unit);
-		Set<Unit> units = detail.getUnits();
-		units.forEach(unitItem -> {
-			if (unit.getId() == unitItem.getId())
-				unitItem.addUsageItem(usage);
-		});
 	}
 }

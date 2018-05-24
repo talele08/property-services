@@ -57,7 +57,6 @@ public class PropertyService {
 			Set<Unit> units = property.getPropertyDetail().getUnits();
 			units.forEach(unit -> {
 				unit.setId(UUID.randomUUID().toString());
-				unit.getUsage().forEach(usage -> usage.setId(UUID.randomUUID().toString()));
 			});
 			Set<Document> documents = property.getPropertyDetail().getDocuments();
 			documents.forEach(document ->{
@@ -133,14 +132,6 @@ public class PropertyService {
 					if(unit.getId()==null){
 						unit.setId(UUID.randomUUID().toString());
 					}
-					Set<UnitUsage> usages = unit.getUsage();
-					if(usages!=null && !usages.isEmpty()){
-						usages.forEach(usage ->{
-							if(usage.getId()==null){
-								usage.setId(UUID.randomUUID().toString());
-							}
-						});
-					}
 				});
 			}
 
@@ -155,7 +146,6 @@ public class PropertyService {
 		Set<String> ids = new HashSet<>();
         Set<String> propertyDetailids = new HashSet<>();
         Set<String> unitids = new HashSet<>();
-        Set<String> usageids = new HashSet<>();
         Set<String> documentids = new HashSet<>();
         Set<String> ownerids = new HashSet<>();
         Set<String> addressids = new HashSet<>();
@@ -175,8 +165,6 @@ public class PropertyService {
                         documentids.addAll(getDocumentids(property.getPropertyDetail()));
                      if(!CollectionUtils.isEmpty(property.getPropertyDetail().getUnits())) {
                         unitids.addAll(getUnitids(property.getPropertyDetail()));
-                      if(usageNotEmpty(property.getPropertyDetail().getUnits()))
-                        usageids.addAll(getUsageids(property.getPropertyDetail()));
                      }
                  }
 				}
@@ -188,8 +176,7 @@ public class PropertyService {
         propertyCriteria.setAddressids(addressids);
         propertyCriteria.setOwnerids(ownerids);
         propertyCriteria.setUnitids(unitids);
-        propertyCriteria.setUsageids(usageids);
-        propertyCriteria.setDocumentids( documentids);
+        propertyCriteria.setDocumentids(documentids);
 
 		List<Property> responseProperties = searchProperty(propertyCriteria);
 		return responseProperties;
@@ -216,24 +203,13 @@ public class PropertyService {
 	    return unitIds;
     }
 
-	private Set<String> getUsageids(PropertyDetail propertyDetail){
-        Set<Unit> units= propertyDetail.getUnits();
-        Set<UnitUsage> usages = new HashSet<>();
-        Set<String> usageids = new HashSet<>();
-        units.forEach(unit -> {
-            usages.addAll(unit.getUsage());
-        });
-        usages.forEach(usage -> {
-            if(usage.getId()!=null)
-             usageids.add(usage.getId());
-        });
-        return usageids;
-    }
+
 
 	private Set<String> getDocumentids(PropertyDetail propertyDetail){
         Set<Document> documents= propertyDetail.getDocuments();
         Set<String> documentIds = new HashSet<>();
         documents.forEach(document -> {
+			if(document.getId()!=null)
             documentIds.add(document.getId());
         });
         return documentIds;
@@ -254,10 +230,7 @@ public class PropertyService {
 		return listEqualsIgnoreOrder(responseids,requestids);
 	}
 
-	private boolean usageNotEmpty(Set<Unit> units){
-        Predicate<Unit> p = unit -> !CollectionUtils.isEmpty(unit.getUsage()) ;
-	    return units.stream().anyMatch(p);
-    }
+
 
 	private static <T> boolean listEqualsIgnoreOrder(List<T> list1, List<T> list2) {
 		return new HashSet<>(list1).equals(new HashSet<>(list2));

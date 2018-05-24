@@ -23,8 +23,6 @@ public class PropertyCriteria {
 
 	private Set<String> unitids;
 
-	private Set<String> usageids;
-
 	private Set<String> documentids;
 
 	private Set<String> ownerids;

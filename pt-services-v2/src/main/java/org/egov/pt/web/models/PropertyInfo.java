@@ -83,6 +83,12 @@ public class PropertyInfo   {
         @JsonProperty("propertyType")
         private String propertyType;
 
+        @JsonProperty("propertySubType")
+        private String propertySubType;
+
+        @JsonProperty("usageCategoryMajor")
+        private String usageCategoryMajor;
+
         @JsonProperty("owners")
         @Valid
         private List<OwnerInfo> owners;

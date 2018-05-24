@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,18 +46,66 @@ public class Unit   {
         @JsonProperty("unitArea")
         private Float unitArea;
 
-        @JsonProperty("usage")
-        @Valid
-        private Set<UnitUsage> usage;
+        @JsonProperty("usageCategoryMajor")
+        private String usageCategoryMajor;
 
+        @JsonProperty("usageCategoryMinor")
+        private String usageCategoryMinor;
 
-        public Unit addUsageItem(UnitUsage usageItem) {
-            if (this.usage == null) {
-            this.usage = new HashSet<>();
-            }
-        this.usage.add(usageItem);
-        return this;
+        @JsonProperty("usageCategorySubMinor")
+        private String usageCategorySubMinor;
+
+        @JsonProperty("usageCategoryDetail")
+        private String usageCategoryDetail;
+
+        public enum occupancyTypeEnum {
+                OWNER("OWNER"),
+
+                TENANT("TENANT");
+
+                private String value;
+
+                occupancyTypeEnum(String value) {
+                        this.value = value;
+                }
+
+                @Override
+                @JsonValue
+                public String toString() {
+                        return String.valueOf(value);
+                }
+
+                @JsonCreator
+                public static Unit.occupancyTypeEnum fromValue(String text) {
+                        for (Unit.occupancyTypeEnum b : Unit.occupancyTypeEnum.values()) {
+                                if (String.valueOf(b.value).equals(text)) {
+                                        return b;
+                                }
+                        }
+                        return null;
+                }
         }
+
+        @JsonProperty("occupancyType")
+        private Unit.occupancyTypeEnum occupancyType;
+
+        @JsonProperty("occupancyDate")
+        private Long occupancyDate;
+
+        @JsonProperty("constructionType")
+        private String constructionType;
+
+        @JsonProperty("constructionSubType")
+        private String constructionSubType;
+
+        @JsonProperty("arv")
+        private Double arv;
+
+
+
+
+
+
 
 }
 

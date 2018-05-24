@@ -13,10 +13,9 @@ public class PropertyQueryBuilder {
 
 	public static final String INNER_JOIN_STRING = "INNER JOIN";
 	
-	static final String QUERY = "SELECT pt.*,ptdl.*,address.*,owner.*,doc.*,unit.*,usage.*,"
-			
+	static final String QUERY = "SELECT pt.*,ptdl.*,address.*,owner.*,doc.*,unit.*,"
 			+ " pt.id as propertyid,ptdl.id as propertydetailid,doc.id as documentid,unit.id as unitid,"
-			+ " usage.id as usageid,address.id as addresskeyid"
+			+ "address.id as addresskeyid"
 			+ " FROM eg_pt_property_v2 pt "
 			+ INNER_JOIN_STRING
 			+ " eg_pt_propertydetail_v2 ptdl ON pt.id=ptdl.property "
@@ -26,8 +25,6 @@ public class PropertyQueryBuilder {
 			+ " eg_pt_document_v2 doc ON ptdl.id=doc.propertydetail "
 			+ INNER_JOIN_STRING
 			+ " eg_pt_unit_v2 unit ON ptdl.id=unit.propertydetail "
-			+ INNER_JOIN_STRING
-			+ " eg_pt_usage_v2 usage ON unit.id=usage.unit "
 			+ INNER_JOIN_STRING
 			+" eg_pt_address_v2 address on address.property=pt.id"
 			+ " WHERE ";
@@ -73,12 +70,6 @@ public class PropertyQueryBuilder {
 
 		}
 
-		Set<String> usageids = criteria.getUsageids();
-		if(!CollectionUtils.isEmpty(usageids)) {
-
-			builder.append("and usage.id IN ("+convertSetToString(usageids)+")");
-
-		}
 
 		Set<String> documentids = criteria.getDocumentids();
 		if(!CollectionUtils.isEmpty(documentids)) {
@@ -96,10 +87,9 @@ public class PropertyQueryBuilder {
 		final String comma = ",";
 		StringBuilder builder = new StringBuilder();
 		Iterator<String> iterator = ids.iterator();
-		int i =0;
 		while(iterator.hasNext()) {
 			builder.append(quotes+iterator.next()+quotes);
-			if(i++ > 0) builder.append(comma);
+			if(iterator.hasNext()) builder.append(comma);
 		}
 		return builder.toString();
 	}
